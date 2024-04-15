@@ -1,0 +1,34 @@
+import threading
+import random
+
+# Function to return a random number between 1 and 6
+def roll_dice():
+    return random.randint(1, 6)
+
+# List to hold the results of dice rolls
+dice_rolls = []
+
+# Function to execute in each thread, appends result of roll_dice to dice_rolls list
+def thread_task(lock):
+    roll = roll_dice()
+    with lock:
+        dice_rolls.append(roll)
+
+# Creating a lock object to manage access to shared resource
+lock = threading.Lock()
+
+# List to keep track of threads
+threads = []
+
+# Launching 100 threads
+for _ in range(100):
+    thread = threading.Thread(target=thread_task, args=(lock,))
+    threads.append(thread)
+    thread.start()
+
+# Waiting for all threads to complete
+for thread in threads:
+    thread.join()
+
+# Displaying the results
+dice_rolls

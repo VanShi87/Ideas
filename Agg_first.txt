@@ -1,0 +1,50 @@
+# Method 1: Using groupby() with apply() to return the first row for each group
+first_rows_apply = df.groupby('A').apply(lambda x: x.iloc[0])
+
+# Method 2: Using groupby() with agg() to return the first row for each group
+# Note: agg() is typically used for aggregation operations, so using it to return the first row
+# might involve specifying each column and the function 'first' or similar.
+# This example shows a generic way that might not apply directly for returning the entire first row as is.
+first_rows_agg = df.groupby('A').agg('first')
+
+# Display the results
+first_rows_apply, first_rows_agg
+
+
+
+
+import pandas as pd
+import numpy as np
+
+# Generate a range of dates
+dates = pd.date_range(start='2022-01-01', periods=10000, freq='D')
+
+dates = np.repeat(dates, 100)
+# Generate IDs
+ids = np.repeat(range(1, 1001), 1000)
+
+# Create the DataFrame
+df = pd.DataFrame({'id': ids, 'date': dates})
+
+
+import time
+
+start = time.time()
+# Sort the dataframe by 'id' and 'date' in descending order
+df.sort_values(['date'], ascending=[False], inplace=True)
+
+# Drop duplicates based on 'id' and keep the first occurrence (which will be the last record by date)
+df.drop_duplicates(subset='id', keep='first', inplace=True)
+
+# Reset the index of the dataframe
+df.reset_index(drop=True, inplace=True)
+
+# The resulting dataframe will contain the last record by date for every id
+print(time.time()-start)
+
+
+start = time.time()
+df.sort_values(['date'], ascending=False, inplace=True)
+x=df.groupby('id', as_index=False, group_keys=False, sort=False).first()#.apply(lambda group: group.iloc[0])
+print(time.time()-start)
+x

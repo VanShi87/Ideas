@@ -1,0 +1,83 @@
+import pandas as pd
+
+# Original DataFrame
+df = pd.DataFrame({
+    'A': [1, 2, 3, 4, 5],
+    'B': [10, 20, 30, 40, 50]
+})
+
+# Example 1: Changing the behavior of the `head` method to always return the first two rows
+def new_head(self, n=2):
+    return self.iloc[:n]
+
+pd.DataFrame.head = new_head
+
+# Using the patched method
+df.head()
+
+# Example 2: Adding a print statement to the original head method
+original_head = pd.DataFrame.head
+
+def head_with_print(self, n=5):
+    print("This is the patched head method.")
+    return original_head(self, n)
+
+pd.DataFrame.head = head_with_print
+
+# Using the patched method with print
+df.head()
+
+# Example 3: Patching the head method to reverse the DataFrame before returning the top rows
+def reversed_head(self, n=5):
+    return self.iloc[::-1].head(n)
+
+pd.DataFrame.head = reversed_head
+
+# Using the patched method to get reversed head
+df.head()
+
+# Purpose of Monkey Patching
+
+# 1. Testing: Monkey patching can be used to change or mock behaviors of code during testing. This allows for testing
+#    in isolation without relying on external systems.
+def mock_external_api_call():
+    return "Mocked Response"
+
+# Original function that makes an external API call
+def external_api_call():
+    # Imagine this function makes an actual API call
+    pass
+
+# Monkey patching the function for testing
+external_api_call = mock_external_api_call
+
+# 2. Fixing Bugs: If there's a bug in a library that you cannot immediately fix by changing the library itself,
+#    monkey patching allows you to apply a temporary fix in your codebase.
+def fixed_function():
+    # Code that fixes the bug
+    pass
+
+# Assuming `buggy_function` is a function in a library with a known bug
+# buggy_function = fixed_function
+
+# 3. Extending Functionality: You can add new methods or modify existing ones in a class from a third-party library
+#    to extend its functionality to fit your needs.
+class ThirdPartyClass:
+    def original_method(self):
+        return "Original Behavior"
+
+# New functionality to be added
+def new_method(self):
+    return "Extended Behavior"
+
+# Adding new method to the class
+ThirdPartyClass.new_method = new_method
+
+# 4. Adapting Interfaces: Monkey patching can be used to change an object or module's interface so it matches what
+#    your code expects, making it easier to integrate with third-party code or libraries.
+def adapted_method():
+    # Implementation that matches the expected interface
+    pass
+
+# Assuming there's a method with a different interface that needs adapting
+# original_method = adapted_method

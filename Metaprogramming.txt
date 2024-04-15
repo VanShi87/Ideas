@@ -1,0 +1,47 @@
+from bigxml import Parser, xml_handle_element
+from dataclasses import dataclass
+from collections import namedtuple
+
+
+fields, defaults = zip(*[('name', None), 
+                         ('path', []), 
+                         ('na_value', 'N/A')
+                        ])
+
+Entity_feature = namedtuple('Entity_feature', fields, defaults=defaults)
+
+
+def entity_meta(name, bases, dct):
+    new_dct = {}
+    init_dct = {}
+    for key, value in dct.items():
+        if key != '__annotations__':
+            new_dct[key] = value
+        else:
+            for name, path, na_value in value:
+                def handle_func(self, node, name=name):
+                    setattr(self, name, node.text)
+                new_dct[f'handle_{name}'] = xml_handle_element(*path)(handle_func)
+                init_dct.update({name: na_value})
+    
+    def init(self):
+        for key, na_value in init_dct.items():
+            setattr(self, key, na_value)
+            
+    def _getattr(self, attr):
+        return super().getattr(self, attr)
+        
+    
+    new_dct['__init__'] = init
+    new_dct['__getattribute__'] = _getattr
+    
+    return type(name, bases, new_dct)
+
+@xml_handle_element("LEIData", "LEIRecords", "LEIRecord")
+class Entity(metaclass=entity_meta):
+    __annotations__ = [
+        Entity_feature(name='LEI', path=['LEI']),
+        Entity_feature(name='LegalName', path=["Entity", "LegalName"]),
+        Entity_feature(name='Category', path=["Entity", "EntityCategory"]),
+        Entity_feature(name='ValidationAuthorityEntityID', path=["Registration", "ValidationAuthority", "ValidationAuthorityEntityID"]),
+          ]

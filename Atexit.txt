@@ -1,0 +1,8 @@
+import atexit
+
+def clear_forms():
+    display(Javascript('''
+        $('input').val('');
+    '''))
+
+atexit.register(clear_forms)
